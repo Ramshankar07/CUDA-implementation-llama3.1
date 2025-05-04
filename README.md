@@ -3,61 +3,60 @@
 llama3 is an implementation of Llama 3.1 in pure C/CUDA. Built on top of Karpathys llm.c.
 
 ```bash
-
 ## Research log
-2024-08-23
+2025-03-15
 ----------
-integrated `repeat_kv`and `apply_rope` into already optimized MHA implementaion. 
-changed the implementation of `permute_kernel` used in previous MHA (since the K,V shapes were 
+integrated `repeat_kv`and `apply_rope` into already optimized MHA implementaion.
+changed the implementation of `permute_kernel` used in previous MHA (since the K,V shapes were
 changed from `[B,T,NH,HS]` to `[B,T,num_kv_heads, HS]`)
 
-2024-08-21
+2025-03-14
 ----------
-`repeat_kv` optimized  with cma. perf gain from 
+`repeat_kv` optimized with cma. perf gain from
 `time 0.3275 ms` for the `block_size=32`, to `time 0.3202 ms` (a hard-coded block_size (=head_dim))
 
-2024-08-18
+2025-03-12
 ----------
-optimized `swiglu` kernel using `bfloat16` and the _Packed128_ data structure which helps in 
-faster **load/store** operations. Perf gain from `time 0.2018 ms` to `time 0.1711 ms` in 
-forward pass, and `time 0.3049 ms` to `time 0.2900 ms` in 
+optimized `swiglu` kernel using `bfloat16` and the _Packed128_ data structure which helps in
+faster **load/store** operations. Perf gain from `time 0.2018 ms` to `time 0.1711 ms` in
+forward pass, and `time 0.3049 ms` to `time 0.2900 ms` in
 backward-pass, with the `block_size=32`.
 
-2024-08-12
+2025-03-07
 ----------
-optimized `precompute_cis` using simple coalesced memory accesses. 
+optimized `precompute_cis` using simple coalesced memory accesses.
 perf impraved from `time 0.0410 ms` to `time 0.0098 ms` for the `block_size=32`
 
-2024-08-04
+2025-03-02
 ----------
-optimized kernels of `apply_rope` with coalesced memory access, controlled warp-divergence, 
-and shared memory access. The kernel was found to Memory-Bandwidth bound, so it was 
-limited by GPU memory bandwidth, and thus no significant performance gains. Although, we can try 
+optimized kernels of `apply_rope` with coalesced memory access, controlled warp-divergence,
+and shared memory access. The kernel was found to Memory-Bandwidth bound, so it was
+limited by GPU memory bandwidth, and thus no significant performance gains. Although, we can try
 using efficient load/store operations to improve performance
 
-2024-08-01
+2025-02-28
 ----------
-added 2 optimized gpu kernels of rmsnorm using **cooperative-groups**. performance gain 
-from `time 0.5607 ms` to `time 0.2380 ms` in forward pass, and `time 3.4939 ms` to `time 0.3957 ms` 
+added 2 optimized gpu kernels of rmsnorm using **cooperative-groups**. performance gain
+from `time 0.5607 ms` to `time 0.2380 ms` in forward pass, and `time 3.4939 ms` to `time 0.3957 ms`
 in backward-pass, with the `block_size=32`
 
-2024-07-31
+2025-02-27
 ----------
 integrated all the kernels and components into llama3_forward and llama3_backward.
 
-2024-07-18
+2025-02-18
 ----------
 completed the implementation of attention_forward_gqa and attention_backward_gqa.
 
-2024-07-13
+2025-02-15
 ----------
 implemented the repeat_interleave function used in gqa.
 
-2024-07-08
+2025-02-11
 ----------
 implemented the precompute-cis-kernel of RoPE(Rotary Position Embedding).
 
-2024-07-02
+2025-02-07
 ----------
 implemented swiGLU.
 Utilized four custom kernels to achieve the following:
@@ -66,10 +65,9 @@ Utilized four custom kernels to achieve the following:
 - swiglu_forward to combine results.
 - matmul_forward for projecting back to the original dimension.
 
-2024-06-23
+2025-02-01
 ----------
 understanding forward and backward kernels of attention, gelu, matmul, cse and more...
-
 ```
 
 I have implemented three major kernels:
